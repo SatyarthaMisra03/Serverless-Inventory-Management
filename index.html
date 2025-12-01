@@ -26,7 +26,6 @@
                     animation: {
                         'float': 'float 8s ease-in-out infinite',
                         'fade-up': 'fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
@@ -39,18 +38,26 @@
 
     <style>
         body {
-            background-color: #080202;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(94, 13, 18, 0.2) 0%, transparent 40%),
-                radial-gradient(circle at 85% 30%, rgba(197, 160, 89, 0.05) 0%, transparent 40%);
+            background-color: #050101;
+            overflow: hidden;
+        }
+
+        #canvas3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.9; 
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(20, 5, 5, 0.4); 
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(197, 160, 89, 0.1);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
         }
 
         .glass-panel-light {
@@ -59,16 +66,15 @@
              border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* --- FIXED SELECTOR STYLING --- */
         .modern-input {
-            background-color: #150505;
+            background-color: rgba(10, 2, 2, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #E6D28C;
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
         }
         .modern-input:focus {
-            background-color: #1f0808;
+            background-color: rgba(20, 5, 5, 0.9);
             border-color: #C5A059;
             box-shadow: 0 0 0 1px rgba(197, 160, 89, 0.3);
             outline: none;
@@ -89,21 +95,23 @@
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #38090d; border-radius: 20px; }
+        ::-webkit-scrollbar-thumb { background: #5e0d12; border-radius: 20px; }
         ::-webkit-scrollbar-thumb:hover { background: #C5A059; }
 
         .stage-element { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .stage-enter { opacity: 1; transform: translateY(0); }
     </style>
 </head>
-<body class="text-gray-200 h-screen overflow-hidden relative selection:bg-velvet-800 selection:text-gold-300">
+<body class="text-gray-200 h-screen relative selection:bg-velvet-800 selection:text-gold-300">
+
+    <canvas id="canvas3d"></canvas>
 
     <div id="welcome-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center text-center px-6 transition-all duration-700 ease-in-out">
         <div class="relative z-10 flex flex-col items-center animate-float">
             
             <div class="mb-8 relative">
                 <div class="absolute inset-0 bg-velvet-700 blur-[60px] opacity-30 rounded-full"></div>
-                <div class="relative bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-xl">
+                <div class="relative bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-xl">
                     <svg class="w-10 h-10 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
@@ -115,11 +123,11 @@
             </h3>
             
             <p class="font-display font-medium text-gold-500/60 mb-12 tracking-[0.3em] uppercase text-xs">
-                JOINT INVENTORY SYSTEM
+                Premium Inventory Control
             </p>
             
             <button onclick="enterSystem()" class="group relative px-12 py-4 rounded-full bg-gradient-to-r from-velvet-900 to-black border border-velvet-800 hover:border-gold-500/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(197,160,89,0.3)]">
-                <span class="relative z-10 font-display font-bold text-white group-hover:text-gold-300 transition-colors tracking-wider">LAUNCH</span>
+                <span class="relative z-10 font-display font-bold text-white group-hover:text-gold-300 transition-colors tracking-wider">Access Terminal</span>
             </button>
         </div>
     </div>
@@ -223,15 +231,21 @@
                 </div>
 
                 <div class="lg:col-span-5 glass-panel rounded-[2.5rem] flex flex-col h-[720px] stage-element" style="transition-delay: 300ms">
-                    <div class="p-10 border-b border-white/5 flex justify-between items-center">
-                        <div>
-                             <h3 class="font-display font-bold text-xl text-white tracking-wide">Recent Logs</h3>
-                             <p class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Current Session</p>
+                    <div class="p-10 border-b border-white/5 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                 <h3 class="font-display font-bold text-xl text-white tracking-wide">Recent Logs</h3>
+                                 <p class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Current Session</p>
+                            </div>
                         </div>
-                        <button onclick="exportSessionData()" class="text-[10px] font-bold text-gold-400 hover:text-black hover:bg-gold-500 px-5 py-2.5 border border-gold-500/30 rounded-full transition-all uppercase tracking-wider flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Export
-                        </button>
+                        
+                        <div class="flex gap-2">
+                            <input type="text" id="fileNameInput" placeholder="File Name (Optional)" class="modern-input w-full rounded-full px-4 py-2 text-xs font-medium placeholder:text-white/20 outline-none">
+                            <button onclick="exportSessionData()" class="text-[10px] font-bold text-black bg-gold-500 hover:bg-white px-5 py-2 rounded-full transition-all uppercase tracking-wider flex items-center gap-2 whitespace-nowrap">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Export
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-black/10">
@@ -257,6 +271,74 @@
         const scriptURL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE'; 
         // ********************************************************
 
+        // --- DENSE STARFIELD ENGINE ---
+        const canvas = document.getElementById('canvas3d');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        const particleCount = 1500; // Dense starfield
+        let mouseX = 0, mouseY = 0;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+        class Particle {
+            constructor() {
+                this.reset();
+                this.z = Math.random() * width; // Init Z randomly
+            }
+            reset() {
+                this.x = (Math.random() - 0.5) * width * 3; // Very wide spread
+                this.y = (Math.random() - 0.5) * height * 3;
+                this.z = width + Math.random() * 500; // Start far back
+                this.size = Math.random() * 1.5; 
+                this.speed = 0.5 + Math.random() * 1.5;
+                // Colors: mostly white/gold/velvet mix
+                const rand = Math.random();
+                if(rand > 0.9) this.color = '#8a1c22'; // rare velvet
+                else if(rand > 0.7) this.color = '#C5A059'; // gold
+                else this.color = '#FFFFFF'; // white stars
+            }
+            update() {
+                this.z -= this.speed;
+                if(this.z <= 1) this.reset();
+            }
+            draw() {
+                const perspective = 400;
+                const scale = perspective / (perspective + this.z);
+                const x2d = this.x * scale + width / 2 + (mouseX - width/2) * 0.02;
+                const y2d = this.y * scale + height / 2 + (mouseY - height/2) * 0.02;
+
+                if(x2d < 0 || x2d > width || y2d < 0 || y2d > height) return;
+
+                const alpha = Math.min(1, scale);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(x2d, y2d, this.size * scale, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<particleCount; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+
+        // --- APP LOGIC ---
         let assetTypes = JSON.parse(localStorage.getItem('luxAssetTypes')) || ['Workstation', 'Server', 'Mobile', 'Peripheral', 'Network'];
         const typeSelect = document.getElementById('typeSelect');
         const modal = document.getElementById('configModal');
@@ -374,9 +456,15 @@
         }
 
         function exportSessionData() {
-            if(sessionData.length === 0) return;
+            if(sessionData.length === 0) return alert("No data to export.");
 
-            // Map keys to Capitalized Headers for Excel
+            // Get custom filename
+            let fileName = document.getElementById('fileNameInput').value.trim();
+            if(!fileName) fileName = "Asset_Inventory";
+            // Remove extension if user added it, then re-add to ensure consistency
+            fileName = fileName.replace(/\.xlsx$/i, "") + ".xlsx";
+
+            // Map keys to Proper Headers
             const formattedData = sessionData.map(item => ({
                 "Type": item.type,
                 "Status": item.status,
@@ -389,7 +477,7 @@
             const ws = XLSX.utils.json_to_sheet(formattedData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Assets");
-            XLSX.writeFile(wb, "Asset_Export.xlsx");
+            XLSX.writeFile(wb, fileName);
         }
 
         function enterSystem() {
